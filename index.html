@@ -1190,13 +1190,13 @@ async function syncToSupabase() {
       { key: 'habits',   user_id: SUPA_UID, data: habits,   updated_at: now },
       { key: 'logs',     user_id: SUPA_UID, data: logs,     updated_at: now },
       { key: 'vanchan',  user_id: SUPA_UID, data: vanchan,  updated_at: now },
-      { key: 'vanchanBook', user_id: SUPA_UID, data: vanchanBook, updated_at: now },
       { key: 'workouts', user_id: SUPA_UID, data: workouts, updated_at: now },
       { key: 'bodyLog',  user_id: SUPA_UID, data: bodyLog,  updated_at: now },
       { key: 'settings', user_id: SUPA_UID, data: settings, updated_at: now },
       { key: 'plans',    user_id: SUPA_UID, data: plans,    updated_at: now },
       { key: 'goals',    user_id: SUPA_UID, data: goals,    updated_at: now },
     ];
+    if (vanchanBook) rows.push({ key: 'vanchanBook', user_id: SUPA_UID, data: vanchanBook, updated_at: now });
     const { error } = await supa.from('app_data').upsert(rows, { onConflict: 'key,user_id' });
     if (error) throw error;
     lastSynced = new Date();
