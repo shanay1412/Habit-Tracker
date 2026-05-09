@@ -471,6 +471,44 @@
   .vanchan-book-card .book-row { display: flex; gap: 12px; align-items: flex-start; }
   .vanchan-book-card .book-cover { font-size: 38px; line-height: 1; }
   .vanchan-book-card .book-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* REMEMBER (notes) */
+  .remember-item { padding: 12px 14px; background: var(--accent-light); border-radius: 12px; margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start; }
+  .remember-item .rem-text { flex: 1; font-size: 14px; line-height: 1.55; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+  .remember-item .rem-actions { display: flex; gap: 4px; flex-shrink: 0; }
+  .remember-item .rem-btn { width: 28px; height: 28px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 13px; opacity: 0.6; }
+  .remember-item .rem-btn:hover { opacity: 1; background: rgba(0,0,0,0.06); }
+
+  /* MUSIC PLAYER */
+  .music-card .song-list { display: flex; flex-direction: column; gap: 6px; }
+  .song-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface2); border-radius: 10px; }
+  .song-row.playing { background: var(--accent-light); }
+  .song-row .song-name { flex: 1; font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .song-row .song-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .music-player-bar { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--surface2); border-radius: 12px; margin-bottom: 10px; }
+  .music-player-bar .mp-now { flex: 1; min-width: 0; }
+  .music-player-bar .mp-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .music-player-bar .mp-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .mp-ctrl-btn { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+  .mp-speed-btn { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-size: 12px; font-weight: 600; min-width: 48px; }
+
+  /* NEWS */
+  .news-source-section { margin-bottom: 14px; }
+  .news-source-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .news-source-name { font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; }
+  .news-headline { padding: 10px 12px; background: var(--surface2); border-radius: 10px; margin-bottom: 6px; cursor: pointer; transition: background 0.15s; }
+  .news-headline:hover { background: var(--accent-light); }
+  .news-headline .nh-title { font-size: 13px; font-weight: 500; line-height: 1.45; color: var(--text); }
+  .news-headline .nh-meta { font-size: 10px; color: var(--text3); margin-top: 4px; }
+  .news-summary-card { padding: 14px 16px; background: linear-gradient(135deg, var(--accent-light) 0%, var(--gold-light) 100%); border-radius: 14px; }
+  .news-summary-card .ns-text { font-size: 14px; line-height: 1.7; color: var(--text); white-space: pre-wrap; }
+  .news-tts-controls { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+
+  /* PROFILE PICKER */
+  .profile-pick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+  .profile-pick-btn { padding: 18px 12px; border-radius: 14px; border: 2px solid var(--border); background: var(--surface); cursor: pointer; font-size: 15px; font-weight: 600; color: var(--text); transition: all 0.18s; }
+  .profile-pick-btn:hover, .profile-pick-btn:active { border-color: var(--accent); background: var(--accent-light); }
+  .profile-pick-emoji { font-size: 32px; display: block; margin-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -510,11 +548,14 @@
       <div id="todayHabitsList"></div>
     </div>
 
-    <div class="card" id="dashGoalsCard">
-      <div class="card-title">🎯 Active Goals
-        <span style="margin-left:auto;"><button class="btn btn-sm btn-secondary" onclick="showScreen('progress'); switchTab('progress','goals');">View All</button></span>
+    <div class="card" id="dashRememberCard">
+      <div class="card-title">📌 Remember
+        <span style="margin-left:auto; display:flex; gap:6px;">
+          <button class="btn btn-sm btn-secondary" id="rememberViewAllBtn" onclick="toggleRememberViewAll()">View All</button>
+          <button class="btn btn-sm btn-primary" onclick="openRememberModal()">+ Add</button>
+        </span>
       </div>
-      <div id="dashGoalsList"></div>
+      <div id="rememberList"></div>
     </div>
 
     <div class="card">
@@ -538,7 +579,9 @@
     </div>
 
     <div class="card">
-      <div class="card-title">⚖️ Body Log Today</div>
+      <div class="card-title">⚖️ Body Log
+        <span style="margin-left:auto; font-size:11px; color:var(--text3); font-weight:400;" id="bodyLogLastUpdated"></span>
+      </div>
       <div class="field-row">
         <div>
           <label class="field-label">Weight (kg)</label>
@@ -560,6 +603,16 @@
         <span style="margin-left:auto;"><button class="btn btn-sm btn-primary" onclick="openAddHabitModal()">+ Add</button></span>
       </div>
       <div id="allHabitsList"></div>
+    </div>
+
+    <div class="card music-card">
+      <div class="card-title">🎵 Music
+        <span style="margin-left:auto; font-size:11px; color:var(--text3); font-weight:400;">up to 5 songs · on this device</span>
+      </div>
+      <div id="musicPlayerSlot"></div>
+      <div id="songList" class="song-list"></div>
+      <button class="btn btn-secondary btn-sm" id="addSongBtn" style="margin-top:10px; width:100%;" onclick="document.getElementById('songFileInput').click()">+ Add Song</button>
+      <input type="file" id="songFileInput" accept="audio/*,video/mp4,.mp3,.mp4,.m4a,.wav,.ogg" style="display:none;" onchange="handleSongUpload(event)">
     </div>
 
     <div class="card vanchan-book-card">
@@ -696,12 +749,35 @@
     </div>
   </div>
 
+  <!-- NEWS -->
+  <div id="screen-news" class="screen">
+    <div class="card">
+      <div class="card-title">📰 Today's News
+        <span style="margin-left:auto;"><button class="btn btn-sm btn-primary" id="newsRefreshBtn" onclick="refreshNews()">↻ Refresh</button></span>
+      </div>
+      <p style="font-size:12px; color:var(--text3); margin-bottom:10px; line-height:1.5;">India · World · Geopolitics · Tap any headline to hear it read aloud.</p>
+      <div class="news-tts-controls" id="newsTtsControls" style="display:none;">
+        <button class="btn btn-secondary btn-sm" id="newsPlayBtn" onclick="newsToggleTts()">🔊 Read All Headlines</button>
+        <button class="btn btn-secondary btn-sm" onclick="newsStopTts()">⏹ Stop</button>
+        <button class="btn btn-secondary btn-sm" onclick="newsCycleTtsRate()" id="newsRateBtn">1×</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🗞️ Headlines</div>
+      <div id="newsHeadlinesBody">
+        <div class="empty-state"><div class="empty-icon">📡</div><div class="empty-text">Tap <strong>↻ Refresh</strong> to load today's headlines.</div></div>
+      </div>
+    </div>
+  </div>
+
   <!-- SETTINGS -->
   <div id="screen-settings" class="screen">
     <div class="card">
       <div class="card-title">👤 Profile</div>
       <label class="field-label">Your Name</label>
-      <input type="text" class="field-input" id="userName" placeholder="Enter your name" oninput="saveSetting('name', this.value)">
+      <input type="text" class="field-input" id="userName" placeholder="Enter your name" oninput="saveSetting('name', this.value); updateHeader();">
+      <button class="btn btn-secondary btn-sm" style="width:100%; margin-bottom:14px;" onclick="openProfileModal(true)">↻ Switch Profile</button>
       <label class="field-label">Daily Habits Goal</label>
       <input type="number" class="field-input" id="userGoal" placeholder="5" oninput="saveSetting('goal', parseInt(this.value)||5)">
       <label class="field-label">Weight Unit</label>
@@ -782,6 +858,9 @@
   </div>
   <div class="nav-item" onclick="showScreen('progress')" id="nav-progress">
     <div class="nav-icon">📊</div><div class="nav-label">Progress</div>
+  </div>
+  <div class="nav-item" onclick="showScreen('news')" id="nav-news">
+    <div class="nav-icon">📰</div><div class="nav-label">News</div>
   </div>
 </nav>
 
@@ -926,7 +1005,7 @@
 <div class="modal-overlay" id="vanchanModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">📖 Log Vanchan</div>
+    <div class="modal-title" id="vanchanModalTitle">📖 Log Vanchan</div>
     <div class="modal-sub">Record what you read this week.</div>
     <label class="field-label">Book / Text Title</label>
     <input type="text" class="field-input" id="vanchanTitle" placeholder="e.g. Vachanamrut, Shikshapatri…">
@@ -938,7 +1017,47 @@
     <input type="number" class="field-input" id="vanchanQuality" min="1" max="5" placeholder="5">
     <div class="btn-row">
       <button class="btn btn-secondary" onclick="closeModal('vanchanModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveVanchan()">Save Reading</button>
+      <button class="btn btn-primary" onclick="saveVanchan()" id="vanchanSaveBtn">Save Reading</button>
+    </div>
+    <button class="btn btn-danger btn-sm" id="vanchanDeleteBtn" style="margin-top:10px; display:none;" onclick="deleteVanchan()">Delete Entry</button>
+  </div>
+</div>
+
+<!-- Remember (notes) -->
+<div class="modal-overlay" id="rememberModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="rememberModalTitle">📌 Add Reminder</div>
+    <div class="modal-sub">A short note to keep in mind.</div>
+    <label class="field-label">Note</label>
+    <textarea class="field-textarea" id="rememberText" placeholder="e.g. Call mom on Sunday, Drink more water this week..." rows="4"></textarea>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeModal('rememberModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRemember()">Save</button>
+    </div>
+    <button class="btn btn-danger btn-sm" id="rememberDeleteBtn" style="margin-top:10px; display:none;" onclick="deleteRemember()">Delete</button>
+  </div>
+</div>
+
+<!-- Profile picker -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">👋 Welcome</div>
+    <div class="modal-sub">Who's using this app on this phone? Each profile keeps its own data, separately backed up to the cloud.</div>
+    <div class="profile-pick-grid">
+      <button class="profile-pick-btn" onclick="pickProfile('Shanay')">
+        <span class="profile-pick-emoji">🧔</span>Shanay
+      </button>
+      <button class="profile-pick-btn" onclick="pickProfile('Jahnvi')">
+        <span class="profile-pick-emoji">👩</span>Jahnvi
+      </button>
+    </div>
+    <label class="field-label">Or enter another name</label>
+    <input type="text" class="field-input" id="profileCustomName" placeholder="Your name">
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="profileCancelBtn" onclick="closeModal('profileModal')" style="display:none;">Cancel</button>
+      <button class="btn btn-primary" onclick="pickProfileCustom()">Continue</button>
     </div>
   </div>
 </div>
@@ -1195,6 +1314,7 @@ async function syncToSupabase() {
       { key: 'settings', user_id: SUPA_UID, data: settings, updated_at: now },
       { key: 'plans',    user_id: SUPA_UID, data: plans,    updated_at: now },
       { key: 'goals',    user_id: SUPA_UID, data: goals,    updated_at: now },
+      { key: 'remembers', user_id: SUPA_UID, data: remembers, updated_at: now },
     ];
     if (vanchanBook) rows.push({ key: 'vanchanBook', user_id: SUPA_UID, data: vanchanBook, updated_at: now });
     const { error } = await supa.from('app_data').upsert(rows, { onConflict: 'key,user_id' });
@@ -1222,6 +1342,7 @@ async function loadFromSupabase() {
     if (row.key === 'settings' && typeof row.data === 'object') { settings = {...settings, ...row.data}; DB.set('settings', settings); }
     if (row.key === 'plans'    && Array.isArray(row.data)      && row.data.length)  { plans    = row.data; DB.set('plans',    plans);    }
     if (row.key === 'goals'    && Array.isArray(row.data))      { goals    = row.data; DB.set('goals',    goals);    }
+    if (row.key === 'remembers' && Array.isArray(row.data))     { remembers = row.data; DB.set('remembers', remembers); }
   });
   renderDashboard();
   if (currentScreen === 'habits')   renderHabits();
@@ -1445,11 +1566,24 @@ let bodyLog = DB.get('bodyLog', {});
 let settings = DB.get('settings', { name: '', goal: 5, weightUnit: 'kg', restDuration: 90 });
 let plans = DB.get('plans', DEFAULT_PLANS);
 let goals = DB.get('goals', []);
+let remembers = DB.get('remembers', []);
+let songs = DB.get('songs', []); // [{id, name}]  blobs in IndexedDB
 
 // Migration: ensure settings has new fields
 if (!settings.weightUnit) settings.weightUnit = 'kg';
 if (!settings.restDuration) settings.restDuration = 90;
 if (!settings.ttsRate) settings.ttsRate = 1;
+
+let rememberShowAll = false;
+let editingRememberId = null;
+let editingVanchanIdx = null;
+let currentSongIdx = -1;
+let musicAudio = null;
+let musicSpeedIdx = 0;
+const MUSIC_SPEEDS = [1, 1.25, 1.5, 1.75, 2];
+let newsCache = null; // { items: [...], summary, summaryAt, fetchedAt }
+let newsTtsState = { playing: false, paused: false, rateIdx: 0 };
+const NEWS_TTS_RATES = [1, 1.25, 1.5, 0.85];
 
 let currentScreen = 'dashboard';
 let currentTab = { workouts: 'plans', progress: 'overview' };
@@ -1484,6 +1618,8 @@ function save() {
   DB.set('settings', settings);
   DB.set('plans', plans);
   DB.set('goals', goals);
+  DB.set('remembers', remembers);
+  DB.set('songs', songs);
   // Debounced cloud sync — waits 1.5 s after last change to batch writes
   clearTimeout(syncTimer);
   syncTimer = setTimeout(syncToSupabase, 1500);
@@ -1537,6 +1673,7 @@ function showScreen(name) {
   if (name === 'workouts') renderWorkouts();
   if (name === 'progress') renderProgress();
   if (name === 'settings') renderSettings();
+  if (name === 'news') renderNews();
 }
 
 function switchTab(screen, tab) {
@@ -1558,6 +1695,12 @@ function updateHeader() {
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   document.getElementById('headerDate').textContent =
     `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  // Profile name in header title
+  const titleEl = document.querySelector('.header-title span');
+  if (titleEl) {
+    const pn = (settings.name || '').trim();
+    titleEl.textContent = (pn ? pn + "'s" : "Shanay's");
+  }
 
   const h = now.getHours();
   const name = settings.name ? `, ${settings.name.split(' ')[0]}` : '';
@@ -1585,6 +1728,10 @@ function renderDashboard() {
     if (h.freq === 'daily') return true;
     if (h.freq === 'weekly') return true; // visible all week; counts as done if ticked any day
     return false;
+  }).sort((a, b) => {
+    // Daily first, weekly after
+    if (a.freq === b.freq) return 0;
+    return a.freq === 'daily' ? -1 : 1;
   });
 
   const done = todayHabits.filter(h => isHabitDone(h)).length;
@@ -1614,7 +1761,15 @@ function renderDashboard() {
   if (!todayHabits.length) {
     el.innerHTML = '<div class="empty-state"><div class="empty-icon">☀️</div><div class="empty-text">No habits due today</div></div>';
   } else {
+    let lastFreq = null;
     el.innerHTML = todayHabits.map(h => {
+      let header = '';
+      if (h.freq !== lastFreq) {
+        const label = h.freq === 'daily' ? 'DAILY' : 'WEEKLY';
+        header = `<div style="font-size:10px; font-weight:600; color:var(--text3); letter-spacing:0.08em; margin:${lastFreq ? '14px' : '2px'} 0 8px;">${label}</div>`;
+        lastFreq = h.freq;
+      }
+      return header + (() => {
       const isWeekly = h.freq === 'weekly';
       const wkInfo = isWeekly ? getWeeklyTickInfo(h.id) : null;
       const log = isWeekly && wkInfo.done ? (logs[wkInfo.doneOn][h.id] || {}) : (todayLog[h.id] || {});
@@ -1642,27 +1797,52 @@ function renderDashboard() {
             <button class="check-btn ${isDone ? 'done' : ''}" onclick="event.stopPropagation(); toggleHabit('${h.id}')">${isDone ? '✓' : ''}</button>
           </div>
         </div>`;
+      })();
     }).join('');
   }
 
   renderStreaks();
 
-  // Active goals on dashboard
-  const dashGoals = goals.filter(g => !goalProgress(g).completed).slice(0, 3);
-  const dashGoalsList = document.getElementById('dashGoalsList');
-  if (!dashGoals.length) {
-    dashGoalsList.innerHTML = '<div class="empty-state"><div class="empty-icon">🎯</div><div class="empty-text">No active goals. <a onclick="showScreen(\'progress\'); switchTab(\'progress\',\'goals\');" style="color:var(--accent); cursor:pointer;">Create one</a></div></div>';
-  } else {
-    dashGoalsList.innerHTML = dashGoals.map(g => renderGoalCard(g)).join('');
-  }
+  // Remember (key points) on dashboard
+  renderRemember();
 
   document.getElementById('weekStreakNum').textContent = calcWeekStreak();
   document.getElementById('bestStreak').textContent = calcBestStreak();
   document.getElementById('monthWorkouts').textContent = countRecentWorkouts(30);
 
-  const bl = bodyLog[todayStr] || {};
-  document.getElementById('quickWeight').value = bl.weight || '';
-  document.getElementById('quickCalories').value = bl.calories || '';
+  // Body log: prefill with most recent entry (today, or fall back to last logged date)
+  const lastBL = getLastBodyLog();
+  document.getElementById('quickWeight').value = (lastBL.entry?.weight ?? '') || '';
+  document.getElementById('quickCalories').value = (lastBL.entry?.calories ?? '') || '';
+  const lbl = document.getElementById('bodyLogLastUpdated');
+  if (lbl) {
+    if (!lastBL.date) lbl.textContent = '';
+    else if (lastBL.date === todayStr) lbl.textContent = 'updated today';
+    else lbl.textContent = 'last updated ' + relativeDateLabel(lastBL.date);
+  }
+}
+
+function getLastBodyLog() {
+  const dates = Object.keys(bodyLog).filter(d => {
+    const e = bodyLog[d];
+    return e && (e.weight != null || e.calories != null);
+  }).sort();
+  if (!dates.length) return { date: null, entry: null };
+  const latest = dates[dates.length - 1];
+  return { date: latest, entry: bodyLog[latest] };
+}
+
+function relativeDateLabel(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diffDays = Math.round((today - d) / 86400000);
+  if (diffDays === 0) return 'today';
+  if (diffDays === 1) return 'yesterday';
+  if (diffDays < 7) return diffDays + ' days ago';
+  if (diffDays < 14) return '1 week ago';
+  if (diffDays < 30) return Math.floor(diffDays / 7) + ' weeks ago';
+  if (diffDays < 60) return '1 month ago';
+  return Math.floor(diffDays / 30) + ' months ago';
 }
 
 function renderStreaks() {
@@ -1807,12 +1987,20 @@ function setHabitQualityDirect(id, n) {
 
 function saveBodyLog() {
   const k = todayKey();
-  if (!bodyLog[k]) bodyLog[k] = {};
   const w = parseFloat(document.getElementById('quickWeight').value);
   const c = parseInt(document.getElementById('quickCalories').value);
+  // Only create today's entry if user actually entered something
+  if (!isFinite(w) && !isFinite(c)) {
+    if (bodyLog[k] && bodyLog[k].weight == null && bodyLog[k].calories == null) delete bodyLog[k];
+    save();
+    return;
+  }
+  if (!bodyLog[k]) bodyLog[k] = {};
   bodyLog[k].weight = isFinite(w) ? w : null;
   bodyLog[k].calories = isFinite(c) ? c : null;
   save();
+  const lbl = document.getElementById('bodyLogLastUpdated');
+  if (lbl) lbl.textContent = 'updated today';
 }
 
 function saveSetting(key, val) { settings[key] = val; save(); }
@@ -1846,16 +2034,22 @@ function renderHabits() {
 
   renderVanchanBook();
   renderVanchan();
+  renderMusic();
 }
 
 function renderVanchan() {
   const el = document.getElementById('vanchanList');
   if (!vanchan.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">📖</div><div class="empty-text">No readings logged yet.</div></div>'; return; }
-  el.innerHTML = vanchan.slice().reverse().slice(0, 10).map(v => `
-    <div class="reading-entry" style="padding:12px 0; border-bottom:1px solid var(--border);">
-      <div style="font-size:14px; font-weight:500;">${esc(v.title)}</div>
-      <div style="font-size:11px; color:var(--text3); margin-top:2px;">${v.pages ? esc(v.pages) + ' · ' : ''}${v.date} · ${'⭐'.repeat(v.quality || 0)}</div>
-      ${v.note ? `<div style="font-size:13px; color:var(--text2); margin-top:6px; font-style:italic;">"${esc(v.note)}"</div>` : ''}
+  // Show last 10, but keep original index reference for editing
+  const indexed = vanchan.map((v, i) => ({ ...v, _idx: i }));
+  el.innerHTML = indexed.slice().reverse().slice(0, 10).map(v => `
+    <div class="reading-entry" style="padding:12px 0; border-bottom:1px solid var(--border); display:flex; gap:8px; align-items:flex-start;">
+      <div style="flex:1; min-width:0;">
+        <div style="font-size:14px; font-weight:500;">${esc(v.title)}</div>
+        <div style="font-size:11px; color:var(--text3); margin-top:2px;">${v.pages ? esc(v.pages) + ' · ' : ''}${v.date} · ${'⭐'.repeat(v.quality || 0)}</div>
+        ${v.note ? `<div style="font-size:13px; color:var(--text2); margin-top:6px; font-style:italic;">"${esc(v.note)}"</div>` : ''}
+      </div>
+      <button class="btn btn-sm btn-secondary" style="font-size:13px; padding:6px 8px; flex-shrink:0;" onclick="openEditVanchan(${v._idx})">✏️</button>
     </div>`).join('');
 }
 
@@ -3076,33 +3270,70 @@ function saveQuality() {
 //  VANCHAN
 // ═══════════════════════════════════════════════
 function openVanchanModal() {
+  editingVanchanIdx = null;
+  document.getElementById('vanchanModalTitle').textContent = '📖 Log Vanchan';
+  document.getElementById('vanchanSaveBtn').textContent = 'Save Reading';
+  document.getElementById('vanchanDeleteBtn').style.display = 'none';
   document.getElementById('vanchanTitle').value = '';
   document.getElementById('vanchanPages').value = '';
   document.getElementById('vanchanNote').value = '';
   document.getElementById('vanchanQuality').value = '';
   openModal('vanchanModal');
 }
+function openEditVanchan(idx) {
+  const v = vanchan[idx];
+  if (!v) return;
+  editingVanchanIdx = idx;
+  document.getElementById('vanchanModalTitle').textContent = '✏️ Edit Reading';
+  document.getElementById('vanchanSaveBtn').textContent = 'Update';
+  document.getElementById('vanchanDeleteBtn').style.display = 'block';
+  document.getElementById('vanchanTitle').value = v.title || '';
+  document.getElementById('vanchanPages').value = v.pages || '';
+  document.getElementById('vanchanNote').value = v.note || '';
+  document.getElementById('vanchanQuality').value = v.quality || '';
+  openModal('vanchanModal');
+}
 function saveVanchan() {
   const title = document.getElementById('vanchanTitle').value.trim();
   if (!title) { showToast('Enter a book or text title'); return; }
-  vanchan.push({
-    title, pages: document.getElementById('vanchanPages').value,
+  const entry = {
+    title,
+    pages: document.getElementById('vanchanPages').value,
     note: document.getElementById('vanchanNote').value,
     quality: parseInt(document.getElementById('vanchanQuality').value) || 0,
-    date: todayKey(),
-  });
-  // Mark weekly reading habit done if exists
-  const readHabit = habits.find(h => h.id === 'h5');
-  if (readHabit) {
-    const tl = getTodayLog();
-    if (!tl['h5']) tl['h5'] = {};
-    tl['h5'].done = true;
-    tl['h5'].quality = parseInt(document.getElementById('vanchanQuality').value) || 0;
+  };
+  if (editingVanchanIdx != null && vanchan[editingVanchanIdx]) {
+    entry.date = vanchan[editingVanchanIdx].date || todayKey();
+    vanchan[editingVanchanIdx] = entry;
+  } else {
+    entry.date = todayKey();
+    vanchan.push(entry);
+    // Mark weekly reading habit done if exists (only on new entry)
+    const readHabit = habits.find(h => h.id === 'h5');
+    if (readHabit) {
+      const tl = getTodayLog();
+      if (!tl['h5']) tl['h5'] = {};
+      tl['h5'].done = true;
+      tl['h5'].quality = entry.quality;
+    }
   }
   save();
   closeModal('vanchanModal');
+  editingVanchanIdx = null;
   renderHabits();
-  showToast('📖 Reading logged!');
+  renderDashboard();
+  showToast(editingVanchanIdx != null ? '✏️ Updated' : '📖 Reading logged!');
+}
+function deleteVanchan() {
+  if (editingVanchanIdx == null) return;
+  confirmDialog('Delete this reading?', 'This cannot be undone.', () => {
+    vanchan.splice(editingVanchanIdx, 1);
+    editingVanchanIdx = null;
+    save();
+    closeModal('vanchanModal');
+    renderHabits();
+    showToast('🗑️ Deleted');
+  });
 }
 
 // ═══════════════════════════════════════════════
@@ -3615,13 +3846,492 @@ function esc(s) {
 }
 
 // ═══════════════════════════════════════════════
+//  REMEMBER (key points to remember)
+// ═══════════════════════════════════════════════
+function renderRemember() {
+  const el = document.getElementById('rememberList');
+  if (!el) return;
+  if (!remembers.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📌</div><div class="empty-text">Nothing pinned yet. Tap <strong>+ Add</strong> to capture a thought.</div></div>';
+    document.getElementById('rememberViewAllBtn').style.display = 'none';
+    return;
+  }
+  const visible = rememberShowAll ? remembers : remembers.slice(0, 5);
+  el.innerHTML = visible.map(r => `
+    <div class="remember-item">
+      <div class="rem-text">${esc(r.text)}</div>
+      <div class="rem-actions">
+        <button class="rem-btn" onclick="openEditRemember('${r.id}')" title="Edit">✏️</button>
+      </div>
+    </div>`).join('');
+  const btn = document.getElementById('rememberViewAllBtn');
+  if (remembers.length > 5) {
+    btn.style.display = '';
+    btn.textContent = rememberShowAll ? `Show Less` : `View All (${remembers.length})`;
+  } else {
+    btn.style.display = 'none';
+  }
+}
+function toggleRememberViewAll() { rememberShowAll = !rememberShowAll; renderRemember(); }
+function openRememberModal() {
+  editingRememberId = null;
+  document.getElementById('rememberModalTitle').textContent = '📌 Add Reminder';
+  document.getElementById('rememberDeleteBtn').style.display = 'none';
+  document.getElementById('rememberText').value = '';
+  openModal('rememberModal');
+  setTimeout(() => document.getElementById('rememberText').focus(), 100);
+}
+function openEditRemember(id) {
+  const r = remembers.find(x => x.id === id);
+  if (!r) return;
+  editingRememberId = id;
+  document.getElementById('rememberModalTitle').textContent = '✏️ Edit Reminder';
+  document.getElementById('rememberDeleteBtn').style.display = 'block';
+  document.getElementById('rememberText').value = r.text || '';
+  openModal('rememberModal');
+}
+function saveRemember() {
+  const text = document.getElementById('rememberText').value.trim();
+  if (!text) { showToast('Enter some text first'); return; }
+  if (editingRememberId) {
+    const r = remembers.find(x => x.id === editingRememberId);
+    if (r) { r.text = text; r.updated = new Date().toISOString(); }
+  } else {
+    remembers.unshift({ id: 'r_' + Date.now().toString(36) + Math.random().toString(36).slice(2,5), text, created: new Date().toISOString() });
+  }
+  editingRememberId = null;
+  save();
+  closeModal('rememberModal');
+  renderRemember();
+  showToast('📌 Saved');
+}
+function deleteRemember() {
+  if (!editingRememberId) return;
+  confirmDialog('Delete this reminder?', '', () => {
+    remembers = remembers.filter(r => r.id !== editingRememberId);
+    editingRememberId = null;
+    save();
+    closeModal('rememberModal');
+    renderRemember();
+    showToast('🗑️ Deleted');
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  MUSIC PLAYER (IndexedDB-backed, on this device only)
+// ═══════════════════════════════════════════════
+const MUSIC_DB_NAME = 'tracker-music';
+const MUSIC_STORE = 'songs';
+function musicOpenIdb() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(MUSIC_DB_NAME, 1);
+    r.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(MUSIC_STORE)) db.createObjectStore(MUSIC_STORE);
+    };
+    r.onsuccess = e => res(e.target.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+async function musicPutBlob(id, blob) {
+  const db = await musicOpenIdb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(MUSIC_STORE, 'readwrite');
+    tx.objectStore(MUSIC_STORE).put(blob, id);
+    tx.oncomplete = () => res();
+    tx.onerror = () => rej(tx.error);
+  });
+}
+async function musicGetBlob(id) {
+  const db = await musicOpenIdb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(MUSIC_STORE, 'readonly');
+    const req = tx.objectStore(MUSIC_STORE).get(id);
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+async function musicDeleteBlob(id) {
+  const db = await musicOpenIdb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(MUSIC_STORE, 'readwrite');
+    tx.objectStore(MUSIC_STORE).delete(id);
+    tx.oncomplete = () => res();
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+async function handleSongUpload(ev) {
+  const file = ev.target.files?.[0];
+  ev.target.value = '';
+  if (!file) return;
+  if (songs.length >= 5) { showToast('Max 5 songs. Remove one first.'); return; }
+  const id = 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+  const name = file.name.replace(/\.[^.]+$/, '');
+  try {
+    await musicPutBlob(id, file);
+    songs.push({ id, name });
+    save();
+    renderMusic();
+    showToast('🎵 Added: ' + name);
+  } catch (e) {
+    console.error(e);
+    showToast('Could not save song');
+  }
+}
+
+function renderMusic() {
+  const slot = document.getElementById('musicPlayerSlot');
+  const list = document.getElementById('songList');
+  const addBtn = document.getElementById('addSongBtn');
+  if (!list || !slot) return;
+  addBtn.style.display = songs.length >= 5 ? 'none' : '';
+  if (!songs.length) {
+    slot.innerHTML = '';
+    list.innerHTML = '<div class="empty-state" style="padding:14px 8px;"><div class="empty-icon">🎵</div><div class="empty-text">No songs yet. Tap <strong>+ Add Song</strong>.</div></div>';
+    return;
+  }
+  // Now-playing bar
+  const cur = currentSongIdx >= 0 ? songs[currentSongIdx] : null;
+  if (cur) {
+    const isPlaying = musicAudio && !musicAudio.paused;
+    slot.innerHTML = `
+      <div class="music-player-bar">
+        <button class="mp-ctrl-btn" onclick="musicTogglePlay()">${isPlaying ? '⏸' : '▶︎'}</button>
+        <div class="mp-now">
+          <div class="mp-title">${esc(cur.name)}</div>
+          <div class="mp-sub">${isPlaying ? 'Playing' : 'Paused'} · ${MUSIC_SPEEDS[musicSpeedIdx]}×</div>
+        </div>
+        <button class="mp-speed-btn" onclick="musicCycleSpeed()">${MUSIC_SPEEDS[musicSpeedIdx]}×</button>
+        <button class="mp-ctrl-btn" onclick="musicStop()" title="Stop">⏹</button>
+      </div>`;
+  } else { slot.innerHTML = ''; }
+  list.innerHTML = songs.map((s, i) => `
+    <div class="song-row ${i === currentSongIdx ? 'playing' : ''}">
+      <button class="song-btn" onclick="musicPlay(${i})" title="Play">${i === currentSongIdx && musicAudio && !musicAudio.paused ? '⏸' : '▶︎'}</button>
+      <div class="song-name" ondblclick="musicRename('${s.id}')">${esc(s.name)}</div>
+      <button class="song-btn" onclick="musicRename('${s.id}')" title="Rename">✏️</button>
+      <button class="song-btn" onclick="musicRemove('${s.id}')" title="Remove">🗑️</button>
+    </div>`).join('');
+}
+
+async function musicPlay(idx) {
+  if (idx < 0 || idx >= songs.length) return;
+  const s = songs[idx];
+  if (currentSongIdx === idx && musicAudio) {
+    if (musicAudio.paused) { musicAudio.play(); } else { musicAudio.pause(); }
+    renderMusic();
+    return;
+  }
+  // Switch to a new song
+  if (musicAudio) { try { musicAudio.pause(); } catch {}; musicAudio.src = ''; }
+  try {
+    const blob = await musicGetBlob(s.id);
+    if (!blob) { showToast('Song file missing'); return; }
+    const url = URL.createObjectURL(blob);
+    musicAudio = new Audio(url);
+    musicAudio.playbackRate = MUSIC_SPEEDS[musicSpeedIdx];
+    musicAudio.onplay = () => { renderMusic(); updateMediaSessionState('playing'); };
+    musicAudio.onpause = () => { renderMusic(); updateMediaSessionState('paused'); };
+    musicAudio.onended = () => { currentSongIdx = -1; renderMusic(); clearMediaSession(); };
+    currentSongIdx = idx;
+    await musicAudio.play();
+    setupMediaSession(s);
+    renderMusic();
+  } catch (e) {
+    console.error(e);
+    showToast('Playback failed');
+  }
+}
+
+function setupMediaSession(song) {
+  if (!('mediaSession' in navigator)) return;
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: song.name,
+      artist: (settings.name ? settings.name + "'s" : "Shanay's") + ' Tracker',
+      album: 'Music',
+    });
+    navigator.mediaSession.setActionHandler('play',  () => { if (musicAudio) musicAudio.play(); });
+    navigator.mediaSession.setActionHandler('pause', () => { if (musicAudio) musicAudio.pause(); });
+    navigator.mediaSession.setActionHandler('stop',  () => musicStop());
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+      const prev = currentSongIdx > 0 ? currentSongIdx - 1 : songs.length - 1;
+      musicPlay(prev);
+    });
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+      const next = (currentSongIdx + 1) % songs.length;
+      musicPlay(next);
+    });
+  } catch {}
+}
+function updateMediaSessionState(state) {
+  if ('mediaSession' in navigator) {
+    try { navigator.mediaSession.playbackState = state; } catch {}
+  }
+}
+function clearMediaSession() {
+  if (!('mediaSession' in navigator)) return;
+  try {
+    navigator.mediaSession.metadata = null;
+    navigator.mediaSession.playbackState = 'none';
+  } catch {}
+}
+function musicTogglePlay() {
+  if (!musicAudio) { if (songs.length) musicPlay(0); return; }
+  if (musicAudio.paused) musicAudio.play(); else musicAudio.pause();
+  renderMusic();
+}
+function musicStop() {
+  if (musicAudio) { musicAudio.pause(); musicAudio.currentTime = 0; }
+  currentSongIdx = -1;
+  renderMusic();
+  clearMediaSession();
+}
+function musicCycleSpeed() {
+  musicSpeedIdx = (musicSpeedIdx + 1) % MUSIC_SPEEDS.length;
+  if (musicAudio) musicAudio.playbackRate = MUSIC_SPEEDS[musicSpeedIdx];
+  renderMusic();
+}
+function musicRename(id) {
+  const s = songs.find(x => x.id === id);
+  if (!s) return;
+  const next = prompt('Rename song:', s.name);
+  if (next == null) return;
+  const trimmed = next.trim();
+  if (!trimmed) return;
+  s.name = trimmed;
+  save();
+  renderMusic();
+}
+function musicRemove(id) {
+  const s = songs.find(x => x.id === id);
+  if (!s) return;
+  confirmDialog('Remove this song?', `"${s.name}" will be deleted from this device.`, async () => {
+    const idx = songs.findIndex(x => x.id === id);
+    if (currentSongIdx === idx) { musicStop(); }
+    else if (currentSongIdx > idx) { currentSongIdx--; }
+    songs = songs.filter(x => x.id !== id);
+    try { await musicDeleteBlob(id); } catch {}
+    save();
+    renderMusic();
+    showToast('🗑️ Removed');
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  PROFILE PICKER
+// ═══════════════════════════════════════════════
+function pickProfile(name) {
+  applyProfile(name);
+}
+function pickProfileCustom() {
+  const name = (document.getElementById('profileCustomName').value || '').trim();
+  if (!name) { showToast('Enter a name or pick one above'); return; }
+  applyProfile(name);
+}
+function applyProfile(name) {
+  settings.name = name;
+  localStorage.setItem('sadhana_profile', name);
+  save();
+  closeModal('profileModal');
+  updateHeader();
+  showToast(`👋 Hi, ${name}!`);
+}
+function openProfileModal(allowCancel) {
+  document.getElementById('profileCustomName').value = settings.name || '';
+  document.getElementById('profileCancelBtn').style.display = allowCancel ? '' : 'none';
+  openModal('profileModal');
+}
+
+// ═══════════════════════════════════════════════
+//  NEWS (RSS + TTS)
+// ═══════════════════════════════════════════════
+const NEWS_FEEDS = [
+  { name: 'The Hindu — National',     url: 'https://www.thehindu.com/news/national/feeder/default.rss', region: 'India' },
+  { name: 'The Hindu — International', url: 'https://www.thehindu.com/news/international/feeder/default.rss', region: 'India · World' },
+  { name: 'Hindustan Times',          url: 'https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml', region: 'India' },
+  { name: 'BBC World',                url: 'http://feeds.bbci.co.uk/news/world/rss.xml', region: 'World' },
+  { name: 'Al Jazeera',               url: 'https://www.aljazeera.com/xml/rss/all.xml', region: 'World' },
+  { name: 'The Diplomat',             url: 'https://thediplomat.com/feed/', region: 'Geopolitics' },
+];
+
+// Headlines containing any of these (case-insensitive) get filtered out — clickbait / lifestyle / tabloid.
+const NEWS_BLOCKLIST = [
+  'viral', 'shocking', 'you won\'t believe', 'watch:', 'watch video', 'goes viral',
+  'bollywood', 'kollywood', 'tollywood', 'celeb', 'celebrity', 'whatsapp status',
+  'tarot', 'horoscope', 'zodiac', 'astrology', 'numerology',
+  'lifestyle', 'fashion', 'beauty tips', 'recipe',
+  'kapoor', 'khan family', 'bachchan', 'ambani wedding',
+  'cricket score', 'ipl auction', 'wins toss',
+  'meme', 'tiktok', 'reels',
+];
+
+function isClickbait(title) {
+  const t = (title || '').toLowerCase();
+  return NEWS_BLOCKLIST.some(k => t.includes(k));
+}
+
+async function fetchRss(feedUrl) {
+  // Use rss2json public proxy for CORS-friendly JSON
+  const api = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feedUrl);
+  const r = await fetch(api);
+  if (!r.ok) throw new Error('rss fetch failed');
+  const j = await r.json();
+  return (j.items || [])
+    .filter(it => !isClickbait(it.title))
+    .slice(0, 8)
+    .map(it => ({
+      title: it.title,
+      link: it.link,
+      pubDate: it.pubDate,
+      description: (it.description || '').replace(/<[^>]+>/g, '').slice(0, 280),
+    }));
+}
+
+async function refreshNews() {
+  const headBody = document.getElementById('newsHeadlinesBody');
+  headBody.innerHTML = '<div style="font-size:13px; color:var(--text2); padding:8px 0;">⏳ Fetching from sources…</div>';
+  document.getElementById('newsTtsControls').style.display = 'none';
+
+  // Fetch all in parallel; tolerate failures
+  const results = await Promise.all(NEWS_FEEDS.map(f =>
+    fetchRss(f.url).then(items => ({ ...f, items, ok: true })).catch(err => ({ ...f, items: [], ok: false, err: err.message }))
+  ));
+  newsCache = { sources: results, fetchedAt: new Date().toISOString() };
+  renderNewsHeadlines();
+  document.getElementById('newsTtsControls').style.display = '';
+}
+
+function renderNews() {
+  if (!newsCache) {
+    document.getElementById('newsHeadlinesBody').innerHTML = '<div class="empty-state"><div class="empty-icon">📡</div><div class="empty-text">Tap <strong>↻ Refresh</strong> to load today\'s headlines.</div></div>';
+    document.getElementById('newsTtsControls').style.display = 'none';
+    return;
+  }
+  renderNewsHeadlines();
+  document.getElementById('newsTtsControls').style.display = '';
+}
+
+function renderNewsHeadlines() {
+  const el = document.getElementById('newsHeadlinesBody');
+  if (!newsCache?.sources?.length) return;
+  // Build a flat indexable list so we can reference items by index in TTS
+  const flat = [];
+  newsCache.sources.forEach(s => s.items.forEach(it => flat.push(it)));
+  newsCache.flatItems = flat;
+
+  let i = 0;
+  el.innerHTML = newsCache.sources.map(s => {
+    if (!s.items.length) {
+      return `<div class="news-source-section"><div class="news-source-head"><span class="news-source-name">${esc(s.name)}</span></div><div style="font-size:12px; color:var(--text3); padding:4px 0;">${s.ok ? 'No items.' : '⚠️ Could not load.'}</div></div>`;
+    }
+    return `<div class="news-source-section">
+      <div class="news-source-head">
+        <span class="news-source-name">${esc(s.name)}</span>
+        <span style="font-size:10px; color:var(--text3);">${esc(s.region)}</span>
+      </div>
+      ${s.items.map(it => {
+        const idx = i++;
+        const linkAttr = it.link ? `href="${esc(it.link)}" target="_blank" rel="noopener"` : '';
+        return `<div class="news-headline">
+          <a ${linkAttr} style="display:block; color:inherit; text-decoration:none;">
+            <div class="nh-title">${esc(it.title)}</div>
+            ${it.description ? `<div class="nh-meta">${esc(it.description.slice(0, 140))}${it.description.length > 140 ? '…' : ''}</div>` : ''}
+          </a>
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <button class="btn btn-secondary btn-sm" style="padding:4px 10px; font-size:11px;" onclick="event.stopPropagation(); newsReadItem(${idx})">🔊 Read</button>
+            ${it.link ? `<button class="btn btn-secondary btn-sm" style="padding:4px 10px; font-size:11px;" onclick="event.stopPropagation(); window.open(${JSON.stringify(it.link).replace(/"/g,'&quot;')},'_blank','noopener')">↗ Open</button>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function newsReadItem(idx) {
+  const it = newsCache?.flatItems?.[idx];
+  if (!it) return;
+  newsStopTts();
+  newsSpeak(it.title + '. ' + (it.description || ''));
+}
+
+function buildHeadlinesReadText() {
+  if (!newsCache?.sources) return '';
+  const parts = [];
+  newsCache.sources.forEach(s => {
+    if (!s.items.length) return;
+    parts.push(`From ${s.name}.`);
+    s.items.forEach(it => parts.push(it.title + (it.description ? '. ' + it.description : '') + '.'));
+  });
+  return parts.join(' ');
+}
+
+// TTS
+function newsToggleTts() {
+  if (!('speechSynthesis' in window)) { showToast('Speech not supported on this browser'); return; }
+  const ss = window.speechSynthesis;
+  if (newsTtsState.playing && !newsTtsState.paused) {
+    ss.pause(); newsTtsState.paused = true;
+    document.getElementById('newsPlayBtn').textContent = '▶︎ Resume';
+    return;
+  }
+  if (newsTtsState.playing && newsTtsState.paused) {
+    ss.resume(); newsTtsState.paused = false;
+    document.getElementById('newsPlayBtn').textContent = '⏸ Pause';
+    return;
+  }
+  // Start fresh — read all headlines
+  const text = buildHeadlinesReadText();
+  if (!text) { showToast('No headlines to read'); return; }
+  newsSpeak(text);
+}
+function newsSpeak(text) {
+  const ss = window.speechSynthesis;
+  ss.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = NEWS_TTS_RATES[newsTtsState.rateIdx];
+  utter.onend = () => {
+    newsTtsState.playing = false;
+    newsTtsState.paused = false;
+    const b = document.getElementById('newsPlayBtn'); if (b) b.textContent = '🔊 Read Aloud';
+  };
+  utter.onerror = utter.onend;
+  newsTtsState.playing = true;
+  newsTtsState.paused = false;
+  ss.speak(utter);
+  const b = document.getElementById('newsPlayBtn'); if (b) b.textContent = '⏸ Pause';
+}
+function newsStopTts() {
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  newsTtsState.playing = false;
+  newsTtsState.paused = false;
+  const b = document.getElementById('newsPlayBtn'); if (b) b.textContent = '🔊 Read Aloud';
+}
+function newsCycleTtsRate() {
+  newsTtsState.rateIdx = (newsTtsState.rateIdx + 1) % NEWS_TTS_RATES.length;
+  document.getElementById('newsRateBtn').textContent = NEWS_TTS_RATES[newsTtsState.rateIdx] + '×';
+  if (newsTtsState.playing) {
+    // Restart with new rate (best effort)
+    newsSpeak(buildHeadlinesReadText());
+  }
+}
+
+// ═══════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════
 function init() {
+  // Profile gating: ask for name on first launch
+  const savedProfile = localStorage.getItem('sadhana_profile');
+  if (savedProfile && !settings.name) settings.name = savedProfile;
   updateHeader();
   showScreen('dashboard');
   scheduleReminders();
   initSupabase(); // connects to cloud in background; app still works if offline
+  if (!savedProfile && !settings.name) {
+    // First-launch prompt
+    setTimeout(() => openProfileModal(false), 300);
+  }
   // Daily refresh at midnight
   const now = new Date();
   const midnight = new Date(now); midnight.setHours(24, 0, 5, 0);
