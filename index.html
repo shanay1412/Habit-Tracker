@@ -552,8 +552,9 @@
   .gk-loading { font-size: 13px; color: #15803d; padding: 10px 0; text-align: center; }
 
   /* ── MEETING NOTES ───────────────────────────────── */
-  /* sub-header sticky inside screen */
-  .mn-subheader { position: sticky; top: 57px; z-index: 90; background: rgba(240,253,244,0.93); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(187,247,208,0.6); padding: 10px 14px 8px; }
+  /* sub-header sticky inside screen — top:0 because it scrolls inside the screen container, not the viewport */
+  #screen-meetingnotes { padding-top: 0; }
+  .mn-subheader { position: sticky; top: 0; z-index: 90; background: rgba(240,253,244,0.97); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(187,247,208,0.6); padding: 8px 14px 6px; }
   /* FAB */
   .mn-fab { position: fixed; bottom: 76px; right: 16px; width: 54px; height: 54px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 26px; color: #fff; z-index: 150; transition: transform 0.13s; box-shadow: 0 4px 20px rgba(21,128,61,0.35); background: linear-gradient(135deg,#15803d,#0d9488); }
   .mn-fab:active { transform: scale(0.91); }
@@ -585,7 +586,7 @@
   .mn-chip-btn { flex-shrink: 0; padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; transition: all 0.14s; white-space: nowrap; }
   .mn-chip-btn-inactive { background: #fff; color: #166534; border: 1px solid #bbf7d0 !important; }
   /* search */
-  .mn-search-wrap { position: relative; margin-bottom: 8px; }
+  .mn-search-wrap { position: relative; margin-bottom: 4px; }
   .mn-search-input { width: 100%; padding: 10px 12px 10px 35px; background: #fff; border: 1px solid #bbf7d0; border-radius: 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: #14532d; }
   .mn-search-input:focus { outline: none; border-color: #4ade80; }
   /* field label */
@@ -594,6 +595,8 @@
   .mn-input { width: 100%; padding: 11px 14px; background: #fff; border: 1px solid #bbf7d0; border-radius: 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: #14532d; transition: border-color 0.15s; }
   .mn-input:focus { outline: none; border-color: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.12); }
   .mn-textarea { resize: none; }
+  .mn-bullet-btn { background: #fff; color: #15803d; border: 1px solid #bbf7d0; border-radius: 999px; padding: 3px 11px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .mn-bullet-btn.active { background: #15803d; color: #fff; border-color: #15803d; }
   /* action items card */
   .mn-actions-card { background: linear-gradient(135deg,#fffbeb,#fefce8); border: 1px solid #fde68a; border-radius: 18px; padding: 16px; }
   .mn-actions-title { font-size: 11px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -627,7 +630,7 @@
   .mn-ai-sub-input { flex: 1; padding: 5px 8px; font-size: 12px; font-family: 'DM Sans',sans-serif; border-radius: 8px; border: 1px solid #d1fae5; color: #14532d; }
   .mn-ai-sub-input:focus { outline: none; border-color: #4ade80; }
   /* detail header */
-  .mn-detail-header { position: sticky; top: 57px; z-index: 90; background: rgba(240,253,244,0.93); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(187,247,208,0.6); padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; }
+  .mn-detail-header { position: sticky; top: 0; z-index: 90; background: rgba(240,253,244,0.97); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(187,247,208,0.6); padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; }
   /* empty state */
   .mn-empty { text-align: center; padding: 60px 20px; }
   .mn-empty-icon { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg,#15803d,#0d9488); display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 14px; box-shadow: 0 4px 20px rgba(21,128,61,0.3); }
@@ -647,6 +650,8 @@
   .habit-dot.done { background: linear-gradient(135deg, var(--green) 0%, #6cab83 100%); color: #fff; }
   .habit-dot.miss { background: var(--bg); color: var(--text3); border: 1px solid var(--border); }
   .habit-dot.future { background: transparent; border: 1px dashed var(--border); color: var(--text3); opacity: 0.5; }
+  .habit-dot.editable { cursor: pointer; transition: transform 0.12s, opacity 0.12s; }
+  .habit-dot.editable:active { transform: scale(0.88); opacity: 0.75; }
   .habit-dot.today-dot { box-shadow: 0 0 0 2px var(--gold); }
   .habit-dot-label { font-size: 9px; color: var(--text3); text-align: center; flex: 1; min-width: 0; max-width: 30px; }
   .habit-perf-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; color: var(--text2); margin-top: 4px; }
@@ -823,13 +828,6 @@
 
   <!-- HABITS -->
   <div id="screen-habits" class="screen">
-    <div class="card">
-      <div class="card-title">📋 All Habits
-        <span style="margin-left:auto;"><button class="btn btn-sm btn-primary" onclick="openAddHabitModal()">+ Add</button></span>
-      </div>
-      <div id="allHabitsList"></div>
-    </div>
-
     <div class="card music-card">
       <div class="card-title">🎵 Music
         <span style="margin-left:auto; font-size:11px; color:var(--text3); font-weight:400;">up to 5 songs · on this device</span>
@@ -853,6 +851,13 @@
         <span style="margin-left:auto;"><button class="btn btn-sm btn-primary" onclick="openVanchanModal()">+ Log</button></span>
       </div>
       <div id="vanchanList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 All Habits
+        <span style="margin-left:auto;"><button class="btn btn-sm btn-primary" onclick="openAddHabitModal()">+ Add</button></span>
+      </div>
+      <div id="allHabitsList"></div>
     </div>
   </div>
 
@@ -1900,6 +1905,7 @@ if (!settings.restDuration) settings.restDuration = 90;
 if (!settings.ttsRate) settings.ttsRate = 1;
 
 let rememberShowAll = false;
+let habitsShowAll = false;
 let editingRememberId = null;
 let editingVanchanIdx = null;
 let currentSongIdx = -1;
@@ -1929,6 +1935,7 @@ let mnSearch = '';
 let mnClientFilter = null;
 let mnActionItems = [];    // live editor state
 let mnEditorExisting = null;
+let mnBulletMode = false;
 
 let currentScreen = 'dashboard';
 let currentTab = { workouts: 'plans', progress: 'overview' };
@@ -2376,6 +2383,26 @@ function toggleHabit(id) {
   }
 }
 
+function toggleHabitForDate(habitId, dateStr) {
+  const today = dateKey(new Date());
+  if (dateStr > today) return;
+  if (!logs[dateStr]) logs[dateStr] = {};
+  if (!logs[dateStr][habitId]) logs[dateStr][habitId] = {};
+  const wasDone = !!logs[dateStr][habitId].done;
+  logs[dateStr][habitId].done = !wasDone;
+  if (!wasDone) {
+    logs[dateStr][habitId].time = logs[dateStr][habitId].time || new Date().toISOString();
+  } else {
+    logs[dateStr][habitId].quality = 0;
+  }
+  save();
+  renderProgress();
+  renderDashboard();
+  const d = new Date(dateStr + 'T00:00:00');
+  const label = d.toLocaleDateString('en', { month: 'short', day: 'numeric' });
+  showToast(wasDone ? `Unmarked · ${label}` : `✓ Marked done · ${label}`);
+}
+
 function setHabitQualityDirect(id, n) {
   const h = habits.find(x => x.id === id);
   if (h && h.freq === 'weekly') {
@@ -2426,7 +2453,10 @@ function saveSetting(key, val) { settings[key] = val; save(); }
 function renderHabits() {
   const el = document.getElementById('allHabitsList');
   const todayLog = getTodayLog();
-  el.innerHTML = habits.map(h => {
+  const PREVIEW = 4;
+  const displayHabits = habitsShowAll ? habits : habits.slice(0, PREVIEW);
+  const hasMore = habits.length > PREVIEW;
+  el.innerHTML = displayHabits.map(h => {
     const streak = calcStreak(h.id);
     let freqLabel;
     if (h.freq === 'weekly')      freqLabel = 'Weekly · any day';
@@ -2464,6 +2494,12 @@ function renderHabits() {
         </div>
       </div>`;
   }).join('') || '<div class="empty-state"><div class="empty-icon">🕯️</div><div class="empty-text">No habits yet. Tap Add!</div></div>';
+
+  if (hasMore) {
+    el.innerHTML += `<button onclick="habitsShowAll=!habitsShowAll;renderHabits();" style="width:100%;margin-top:10px;padding:10px;background:none;border:1px dashed var(--border);border-radius:10px;cursor:pointer;font-size:13px;color:var(--text2);font-family:'DM Sans',sans-serif;">
+      ${habitsShowAll ? '↑ Show less' : `↓ Show all ${habits.length} habits`}
+    </button>`;
+  }
 
   renderVanchanBook();
   renderVanchan();
@@ -3814,7 +3850,9 @@ function renderPerHabitCard(h, weekDays, weekStart, daysElapsed, today) {
       else if (done)    { cls += 'done'; content = '✓'; }
       else              { cls += 'miss'; content = '·'; }
       if (day.isToday)  cls += ' today-dot';
-      return `<div class="${cls}" title="${day.label} ${day.date}">${content}</div>`;
+      if (!day.isFuture) cls += ' editable';
+      const click = !day.isFuture ? `onclick="toggleHabitForDate('${h.id}','${day.date}')"` : '';
+      return `<div class="${cls}" title="${day.label}" ${click}>${content}</div>`;
     }).join('');
     const dotLabels = weekDays.map(d =>
       `<div class="habit-dot-label" style="${d.isToday ? 'color:var(--gold);font-weight:700;' : ''}">${d.short}</div>`
@@ -3848,7 +3886,10 @@ function renderPerHabitCard(h, weekDays, weekStart, daysElapsed, today) {
           ${streak > 0 ? `<span class="tag tag-green" style="font-size:10px;">🔥 ${streak} wk</span>` : ''}
         </div>
         <div class="habit-dot-row">${dots}</div>
-        <div style="display:flex;gap:5px;">${dotLabels}</div>
+        <div style="display:flex;gap:5px;align-items:center;">
+          ${dotLabels}
+          <span style="font-size:9px;color:var(--text3);margin-left:auto;opacity:0.7;">tap to edit</span>
+        </div>
         <div style="margin:8px 0 4px;">
           <span class="count-progress-pill ${pillCls}">${pillTxt} this week</span>
           ${thisWeekCount < target && daysElapsed === 7 ? `<span style="font-size:11px;color:var(--red);margin-left:6px;">missed target</span>` : ''}
@@ -3874,7 +3915,9 @@ function renderPerHabitCard(h, weekDays, weekStart, daysElapsed, today) {
     else if (done)    { cls += 'done'; content = '✓'; }
     else              { cls += 'miss'; content = '·'; }
     if (day.isToday)  cls += ' today-dot';
-    return `<div class="${cls}" title="${day.label} ${day.date}">${content}</div>`;
+    if (!day.isFuture) cls += ' editable';
+    const click = !day.isFuture ? `onclick="toggleHabitForDate('${h.id}','${day.date}')"` : '';
+    return `<div class="${cls}" title="${day.label}" ${click}>${content}</div>`;
   }).join('');
   const dotLabels = weekDays.map(d =>
     `<div class="habit-dot-label" style="${d.isToday ? 'color:var(--gold);font-weight:700;' : ''}">${d.short}</div>`
@@ -3896,7 +3939,10 @@ function renderPerHabitCard(h, weekDays, weekStart, daysElapsed, today) {
         ${streak > 0 ? `<span class="tag tag-green" style="font-size:10px;">🔥 ${streak}</span>` : ''}
       </div>
       <div class="habit-dot-row">${dots}</div>
-      <div style="display:flex;gap:5px;">${dotLabels}</div>
+      <div style="display:flex;gap:5px;align-items:center;">
+        ${dotLabels}
+        <span style="font-size:9px;color:var(--text3);margin-left:auto;opacity:0.7;">tap to edit</span>
+      </div>
       <div class="habit-perf-meta">
         <span>This week · <strong>${thisWeekDone}/${daysElapsed}</strong></span>
         <span>Last 30d · <strong>${done30}/30</strong> (${pct30}%)</span>
@@ -5249,7 +5295,7 @@ function mnBuildList() {
   });
 
   const chips = allClients.length ? `
-    <div class="mn-chips-row" style="margin-top:8px;">
+    <div class="mn-chips-row" style="margin-top:4px;">
       <button class="mn-chip-btn ${!mnClientFilter ? 'mn-chip-0' : 'mn-chip-btn-inactive'}" onclick="mnSetClientFilter(null)">All</button>
       ${allClients.map((c,i) => `<button class="mn-chip-btn ${mnClientFilter===c ? 'mn-chip-'+(i%6) : 'mn-chip-btn-inactive'}" onclick="mnSetClientFilter(${JSON.stringify(c).replace(/"/g,'&quot;')})">${mnEsc(c)}</button>`).join('')}
     </div>` : '';
@@ -5272,7 +5318,7 @@ function mnBuildList() {
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;">
           <div style="flex:1;min-width:0;">
             <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;flex-wrap:wrap;">
-              <span class="mn-chip-${p}" style="font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;">${mnEsc(note.client||'No client')}</span>
+              <span class="mn-chip-${p}" style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;">${mnEsc(note.client||'No client')}</span>
               <span style="font-size:11px;color:#166534;opacity:0.7;font-weight:500;">${mnFmtDate(note.date)}</span>
             </div>
             <div class="mn-note-title">${mnEsc(note.title||'Untitled meeting')}</div>
@@ -5286,8 +5332,8 @@ function mnBuildList() {
 
   return `
     <div class="mn-subheader">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+        <div style="display:flex;align-items:baseline;gap:8px;">
           <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:#14532d;">Meeting Notes</div>
           <div style="font-size:12px;color:#15803d;opacity:0.7;">${notes.length} ${notes.length===1?'meeting':'meetings'}</div>
         </div>
@@ -5321,6 +5367,7 @@ function mnOpenEditorById(id) {
 function mnOpenEditor(existing) {
   mnEditorExisting = existing;
   mnActionItems = existing ? JSON.parse(JSON.stringify(existing.actionItems || [])) : [];
+  mnBulletMode = false;
   mnView = 'editor';
   renderMeetingNotes();
   window.scrollTo(0,0);
@@ -5383,10 +5430,14 @@ function mnBuildEditor() {
       </div>
 
       <div>
-        <label class="mn-field-label">Notes</label>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+          <label class="mn-field-label" style="margin:0;">Notes</label>
+          <button id="mnBulletBtn" type="button" class="mn-bullet-btn${mnBulletMode?' active':''}" onclick="mnToggleBullets()">• Bullets</button>
+        </div>
         <textarea class="mn-input mn-textarea" id="mnNotes" rows="8"
           placeholder="What was discussed? You can paste a transcript here too."
-          oninput="mnEditorInput()">${mnEsc(ex?.notes||'')}</textarea>
+          oninput="mnEditorInput()"
+          onkeydown="mnNotesKeydown(event)">${mnEsc(ex?.notes||'')}</textarea>
       </div>
 
       <div>
@@ -5402,6 +5453,55 @@ function mnBuildEditor() {
 
 function mnBindEditor() {
   mnEditorInput(); // set initial save/extract button states
+}
+
+function mnToggleBullets() {
+  mnBulletMode = !mnBulletMode;
+  const btn = document.getElementById('mnBulletBtn');
+  if (btn) btn.classList.toggle('active', mnBulletMode);
+  const ta = document.getElementById('mnNotes');
+  if (!ta) return;
+  if (mnBulletMode) {
+    if (!ta.value.trim()) {
+      ta.value = '• ';
+      ta.selectionStart = ta.selectionEnd = 2;
+    } else {
+      // If cursor is mid-text, just activate for next Enter press
+      const pos = ta.selectionStart;
+      const lineStart = ta.value.lastIndexOf('\n', pos - 1) + 1;
+      const currentLine = ta.value.substring(lineStart, pos);
+      // Add bullet to start of current line if it doesn't already have one
+      if (!currentLine.startsWith('• ')) {
+        ta.value = ta.value.substring(0, lineStart) + '• ' + ta.value.substring(lineStart);
+        ta.selectionStart = ta.selectionEnd = pos + 2;
+      }
+    }
+    ta.focus();
+  }
+}
+
+function mnNotesKeydown(e) {
+  if (!mnBulletMode || e.key !== 'Enter') return;
+  e.preventDefault();
+  const ta = e.target;
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+  const val = ta.value;
+  const lineStart = val.lastIndexOf('\n', start - 1) + 1;
+  const currentLine = val.substring(lineStart, start);
+  // Empty bullet line → remove it and deactivate
+  if (currentLine === '• ' || currentLine === '•') {
+    ta.value = val.substring(0, lineStart > 0 ? lineStart - 1 : 0) + val.substring(start);
+    ta.selectionStart = ta.selectionEnd = Math.max(0, lineStart - 1);
+    mnBulletMode = false;
+    const btn = document.getElementById('mnBulletBtn');
+    if (btn) btn.classList.remove('active');
+    return;
+  }
+  const insert = '\n• ';
+  ta.value = val.substring(0, start) + insert + val.substring(end);
+  ta.selectionStart = ta.selectionEnd = start + insert.length;
+  mnEditorInput();
 }
 
 function mnEditorInput() {
@@ -5885,12 +5985,26 @@ function gkReadAloud() {
 //  NEWS (RSS + TTS + Filters)
 // ═══════════════════════════════════════════════
 const NEWS_FEEDS = [
-  { name: 'The Hindu — National',      url: 'https://www.thehindu.com/news/national/feeder/default.rss',         region: 'India' },
-  { name: 'The Hindu — International', url: 'https://www.thehindu.com/news/international/feeder/default.rss',    region: 'World' },
-  { name: 'Hindustan Times',           url: 'https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml',   region: 'India' },
-  { name: 'BBC World',                 url: 'http://feeds.bbci.co.uk/news/world/rss.xml',                        region: 'World' },
-  { name: 'Al Jazeera',                url: 'https://www.aljazeera.com/xml/rss/all.xml',                         region: 'World' },
-  { name: 'The Diplomat',              url: 'https://thediplomat.com/feed/',                                     region: 'Geopolitics' },
+  // ── India news ──────────────────────────────────────────────────────────
+  { name: 'The Hindu — National',      url: 'https://www.thehindu.com/news/national/feeder/default.rss',             region: 'India' },
+  { name: 'The Hindu — International', url: 'https://www.thehindu.com/news/international/feeder/default.rss',        region: 'World' },
+  { name: 'Hindustan Times',           url: 'https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml',       region: 'India' },
+  { name: 'Indian Express',            url: 'https://indianexpress.com/feed/',                                        region: 'India' },
+  { name: 'NDTV',                      url: 'https://feeds.feedburner.com/ndtvnews-top-stories',                      region: 'India' },
+  { name: 'The Wire',                  url: 'https://thewire.in/rss',                                                 region: 'India' },
+  { name: 'The Print',                 url: 'https://theprint.in/rss',                                                region: 'India' },
+  { name: 'Scroll.in',                 url: 'https://scroll.in/rss',                                                  region: 'India' },
+  { name: 'LiveMint',                  url: 'https://www.livemint.com/rss/news',                                      region: 'India' },
+  // ── Opinion & Editorial ─────────────────────────────────────────────────
+  { name: 'The Hindu — Opinion',       url: 'https://www.thehindu.com/opinion/feeder/default.rss',                   region: 'Opinion' },
+  { name: 'Indian Express — Opinion',  url: 'https://indianexpress.com/section/opinion/feed/',                        region: 'Opinion' },
+  { name: 'The Wire — Opinion',        url: 'https://thewire.in/category/opinion/feed',                               region: 'Opinion' },
+  { name: 'Frontline',                 url: 'https://frontline.thehindu.com/feeder/default.rss',                      region: 'Opinion' },
+  // ── World & Analysis ────────────────────────────────────────────────────
+  { name: 'BBC World',                 url: 'http://feeds.bbci.co.uk/news/world/rss.xml',                             region: 'World' },
+  { name: 'Al Jazeera',                url: 'https://www.aljazeera.com/xml/rss/all.xml',                              region: 'World' },
+  { name: 'The Diplomat',              url: 'https://thediplomat.com/feed/',                                          region: 'Analysis' },
+  { name: 'Foreign Policy',            url: 'https://foreignpolicy.com/feed/',                                        region: 'Analysis' },
 ];
 
 const NEWS_BLOCKLIST = [
@@ -5916,6 +6030,7 @@ const NEWS_TOPICS = [
   { name: 'Climate',    icon: '🌱', keywords: ['climate','environment','pollution','flood','cyclone','heatwave','emissions','carbon','renewable','solar','wind','warming','glacier','drought','wildfire','sustainability','biodiversity','co2'] },
   { name: 'Crime',      icon: '⚖️', keywords: ['arrest','court','police','murder','fraud','cbi','ed raid','jail','verdict','accused','custody','remand','probe','investigation','encounter','high court','supreme court','judge','bail','convicted','sentenced'] },
   { name: 'Defense',    icon: '🛡️', keywords: ['army','navy','air force','military','defence','defense','missile','soldier','border','ceasefire','drone strike','airstrike','combat','warship','fighter jet','troops',' lac ',' loc '] },
+  { name: 'Opinion',   icon: '✍️', keywords: ['opinion','editorial','commentary','column','perspective','argues','writes','contends','analysis','view from','why india','why the','how india','must read','the case for','the case against','rethinking','reimagining','explained'] },
 ];
 
 function isClickbait(title) {
@@ -5971,9 +6086,11 @@ function newsGetVisible() {
   if (!newsCache?.sources) return [];
   const { source, topic, search } = newsPrefs;
   const q = (search||'').toLowerCase().trim();
+  const activeRegion = source?.startsWith('__region__') ? source.replace('__region__','') : null;
   const visible = [];
   newsCache.sources.forEach(s => {
-    if (source !== 'all' && s.name !== source) return;
+    if (activeRegion && activeRegion !== 'all' && s.region !== activeRegion) return;
+    if (!activeRegion && source !== 'all' && s.name !== source) return;
     s.items.forEach(it => {
       if (topic !== 'all' && !(it.topics||[]).includes(topic)) return;
       if (q && !(
@@ -5999,7 +6116,8 @@ function onNewsSearch(val) {
 }
 
 function newsSetSource(val) {
-  newsPrefs.source = val;
+  // Normalize the "All" region chip back to the canonical 'all' value
+  newsPrefs.source = val === '__region__all' ? 'all' : val;
   DB.set('newsPrefs', newsPrefs);
   newsRebuildFilteredFlat();
   renderNewsChips();
@@ -6048,10 +6166,27 @@ function renderNewsChips() {
   // Source chips
   const srcEl = document.getElementById('newsSourceChips');
   if (srcEl) {
-    const chips = [{ label: '📡 All Sources', val: 'all' }, ...NEWS_FEEDS.map(f => ({ label: f.name, val: f.name }))];
-    srcEl.innerHTML = chips.map(c =>
-      `<button class="nf-chip ${newsPrefs.source === c.val ? 'nf-active' : 'nf-inactive'}" onclick="newsSetSource(${JSON.stringify(c.val).replace(/"/g,'&quot;')})">${esc(c.label)}</button>`
-    ).join('');
+    // Show region-group chips + individual source chips
+    const regions = ['all', 'India', 'Opinion', 'World', 'Analysis'];
+    const regionLabels = { all: '📡 All', India: '🇮🇳 India', Opinion: '✍️ Opinion', World: '🌍 World', Analysis: '🔭 Analysis' };
+    const regionChips = regions.map(r => ({
+      label: regionLabels[r] || r,
+      val: '__region__' + r,
+      active: newsPrefs.source === '__region__' + r || (r === 'all' && newsPrefs.source === 'all'),
+    }));
+    // Individual source chips only for the active region (or all if no region selected)
+    const activeRegion = newsPrefs.source?.startsWith('__region__') ? newsPrefs.source.replace('__region__','') : null;
+    const individualChips = NEWS_FEEDS
+      .filter(f => !activeRegion || activeRegion === 'all' || f.region === activeRegion)
+      .map(f => ({ label: f.name, val: f.name }));
+    const allChips = [
+      ...regionChips,
+      ...(individualChips.length < NEWS_FEEDS.length ? individualChips : []),
+    ];
+    srcEl.innerHTML = allChips.map(c => {
+      const isActive = c.active !== undefined ? c.active : newsPrefs.source === c.val;
+      return `<button class="nf-chip ${isActive ? 'nf-active' : 'nf-inactive'}" onclick="newsSetSource(${JSON.stringify(c.val).replace(/"/g,'&quot;')})">${esc(c.label)}</button>`;
+    }).join('');
   }
   // Topic chips — only show topics that have at least 1 visible headline so the row stays tidy
   const topEl = document.getElementById('newsTopicChips');
@@ -6060,8 +6195,10 @@ function renderNewsChips() {
     const counts = {};
     NEWS_TOPICS.forEach(t => counts[t.name] = 0);
     if (newsCache?.sources) {
+      const _ar = newsPrefs.source?.startsWith('__region__') ? newsPrefs.source.replace('__region__','') : null;
       newsCache.sources.forEach(s => {
-        if (newsPrefs.source !== 'all' && s.name !== newsPrefs.source) return;
+        if (_ar && _ar !== 'all' && s.region !== _ar) return;
+        if (!_ar && newsPrefs.source !== 'all' && s.name !== newsPrefs.source) return;
         s.items.forEach(it => (it.topics||[]).forEach(tn => { if (counts[tn] != null) counts[tn]++; }));
       });
     }
@@ -6085,13 +6222,15 @@ function renderNewsHeadlines() {
 
   const { source, topic, search } = newsPrefs;
   const q = (search||'').toLowerCase().trim();
+  const activeRegion = source?.startsWith('__region__') ? source.replace('__region__','') : null;
   const filtering = source !== 'all' || topic !== 'all' || q;
 
   // Group visible items by source
   const grouped = {};
   let totalVisible = 0;
   newsCache.sources.forEach(s => {
-    if (source !== 'all' && s.name !== source) return;
+    if (activeRegion && activeRegion !== 'all' && s.region !== activeRegion) return;
+    if (!activeRegion && source !== 'all' && s.name !== source) return;
     const items = s.items.filter(it => {
       if (topic !== 'all' && !(it.topics||[]).includes(topic)) return false;
       if (!q) return true;
